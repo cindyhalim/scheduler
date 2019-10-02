@@ -3,7 +3,7 @@ import InterviewerList from "../InterviewerList";
 import Button from "../Button";
 
 export default function Form(props) {
-  const [name, setName] = useState(props.name || "");
+  const [name, setName] = useState(props.studentName || "");
   const [interviewer, setInterviewer] = useState(props.interviewer || null);
 
   function reset() {
@@ -15,6 +15,8 @@ export default function Form(props) {
     props.onCancel();
     reset();
   }
+
+  console.log(props);
 
   return (
     <main className="appointment__card appointment__card--create">
