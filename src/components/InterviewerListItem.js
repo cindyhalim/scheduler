@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 
 import "./InterviewerListItem.scss";
-import classnames from "classnames";
 
 export default function InterviewerListItem(props) {
   const interviewerClass = `interviewers__item ${
