@@ -4,6 +4,7 @@ import axios from "axios";
 const SET_DAY = "SET_DAY";
 const SET_APPLICATION_DATA = "SET_APPLICATION_DATA";
 const SET_INTERVIEW = "SET_INTERVIEW";
+const SET_DAYS = "SET_DAYS";
 
 function reducer(state, action) {
   switch (action.type) {
@@ -16,12 +17,16 @@ function reducer(state, action) {
         appointments: action.appointments,
         interviewers: action.interviewers
       };
-    case SET_INTERVIEW: {
+    case SET_INTERVIEW:
       return {
         ...state,
         appointments: action.appointments
       };
-    }
+    case SET_DAYS:
+      return {
+        ...state,
+        days: action.days
+      };
     default:
       throw new Error(
         `Tried to reduce with unsupported action type: ${action.type}`
@@ -70,7 +75,9 @@ export default function useApplicationData() {
 
     return axios
       .put(`/api/appointments/${id}`, { interview })
-      .then(() => dispatch({ type: SET_INTERVIEW, appointments }));
+      .then(() => dispatch({ type: SET_INTERVIEW, appointments }))
+      .then(() => axios.get(`/api/days`))
+      .then(res => dispatch({ type: SET_DAYS, days: res.data }));
   }
 
   function cancelInterview(id) {
@@ -86,7 +93,9 @@ export default function useApplicationData() {
 
     return axios
       .delete(`/api/appointments/${id}`)
-      .then(() => dispatch({ type: SET_INTERVIEW, appointments }));
+      .then(() => dispatch({ type: SET_INTERVIEW, appointments }))
+      .then(() => axios.get(`/api/days`))
+      .then(res => dispatch({ type: SET_DAYS, days: res.data }));
   }
 
   return { state, setDay, bookInterview, cancelInterview };
