@@ -5,8 +5,7 @@ const SET_DAY = "SET_DAY";
 const SET_APPLICATION_DATA = "SET_APPLICATION_DATA";
 const SET_INTERVIEW = "SET_INTERVIEW";
 const SET_DAYS = "SET_DAYS";
-const SET_NEW_INTERVIEW = "SET_NEW_INTERVIEW";
-const DELETE_INTERVIEW = "DELETE_INTERVIEW";
+const UPDATE_INTERVIEW = "UPDATE_INTERVIEW";
 const SET_REMAININGSPOTS = "SET_REMAININGSPOTS";
 
 function reducer(state, action) {
@@ -35,34 +34,19 @@ function reducer(state, action) {
         ...state,
         days: action.days
       };
-    case SET_NEW_INTERVIEW: {
+    case UPDATE_INTERVIEW: {
       const appointment = {
         ...state.appointments[action.eventData.id],
-        interview: { ...action.eventData.interview }
+        interview: action.eventData.interview
+          ? { ...action.eventData.interview }
+          : null
       };
-
       const appointments = {
         ...state.appointments,
         [action.eventData.id]: appointment
       };
-
       return { ...state, appointments: appointments };
     }
-    case DELETE_INTERVIEW: {
-      const appointment = {
-        ...state.appointments[action.eventData.id],
-        interview: null
-      };
-
-      const appointments = {
-        ...state.appointments,
-        [action.eventData.id]: appointment
-      };
-
-      console.log("state in reducer", state);
-      return { ...state, appointments: appointments };
-    }
-
     default:
       throw new Error(
         `Tried to reduce with unsupported action type: ${action.type}`
@@ -73,16 +57,23 @@ function reducer(state, action) {
 function updateObjectInArray(array, action) {
   return array.map((item, index) => {
     if (index !== action.index) {
-      // This isn't the item we care about - keep it as-is
       return item;
     }
-
-    // Otherwise, this is the one we want - return an updated value
     return {
       ...item,
       spots: action.item
     };
   });
+}
+
+function getDayID(days, id) {
+  let dayID;
+  for (let day of days) {
+    if (day.appointments.includes(id)) {
+      dayID = day.id;
+    }
+  }
+  return dayID;
 }
 
 export default function useApplicationData() {
@@ -121,21 +112,14 @@ export default function useApplicationData() {
       wss.onmessage = function(event) {
         const eventData = JSON.parse(event.data);
         if (eventData.type === "SET_INTERVIEW") {
-          if (eventData.interview !== null) {
-            dispatch({ type: SET_NEW_INTERVIEW, eventData });
-            axios
-              .get(`/api/days`)
-              .then(res => dispatch({ type: SET_DAYS, days: res.data }));
-          } else {
-            dispatch({ type: DELETE_INTERVIEW, eventData });
-            axios
-              .get(`/api/days`)
-              .then(res => dispatch({ type: SET_DAYS, days: res.data }));
-          }
-
-          console.log("state", state);
+          console.log(eventData);
+          dispatch({ type: UPDATE_INTERVIEW, eventData });
         }
       };
+    };
+
+    return () => {
+      wss.close();
     };
   }, []);
 
@@ -150,28 +134,20 @@ export default function useApplicationData() {
       [id]: appointment
     };
 
-    let dayID;
-    function getDayID(id) {
-      state.days.forEach((element, index) => {
-        if (element.appointments.includes(id)) {
-          dayID = index;
-          return index;
-        }
-      });
-    }
-    getDayID(id);
+    if (!state.appointments[id].interview) {
+      let dayID = getDayID(state.days, id);
 
-    let days = updateObjectInArray(state.days, {
-      index: dayID,
-      item: state.days[dayID].spots - 1
-    });
-    dispatch({ type: SET_REMAININGSPOTS, days });
+      let days = updateObjectInArray(state.days, {
+        index: dayID - 1,
+        item: state.days[dayID - 1].spots - 1
+      });
+
+      dispatch({ type: SET_REMAININGSPOTS, days });
+    }
 
     return axios
       .put(`/api/appointments/${id}`, { interview })
       .then(() => dispatch({ type: SET_INTERVIEW, appointments }));
-    // .then(() => axios.get(`/api/days`))
-    // .then(res => dispatch({ type: SET_DAYS, days: res.data }));
   }
 
   function cancelInterview(id) {
@@ -184,13 +160,23 @@ export default function useApplicationData() {
       ...state.appointments,
       [id]: appointment
     };
+    let dayID = getDayID(state.days, id);
 
+    let days = updateObjectInArray(state.days, {
+      index: dayID - 1,
+      item: state.days[dayID - 1].spots + 1
+    });
+
+    dispatch({ type: SET_REMAININGSPOTS, days });
     return axios
       .delete(`/api/appointments/${id}`)
-      .then(() => dispatch({ type: SET_INTERVIEW, appointments }))
-      .then(() => axios.get(`/api/days`))
-      .then(res => dispatch({ type: SET_DAYS, days: res.data }));
+      .then(() => dispatch({ type: SET_INTERVIEW, appointments }));
   }
 
-  return { state, setDay, bookInterview, cancelInterview };
+  return {
+    state,
+    setDay,
+    bookInterview,
+    cancelInterview
+  };
 }

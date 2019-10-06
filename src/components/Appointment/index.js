@@ -9,6 +9,7 @@ import Status from "./Status";
 import Confirm from "./Confirm";
 import Error from "./Error";
 import useVisualMode from "../../hooks/useVisualMode";
+import decreaseSpots from "../../hooks/useApplicationData";
 
 const EMPTY = "EMPTY";
 const SHOW = "SHOW";
@@ -39,7 +40,6 @@ export default function Appointment(props) {
       student: name,
       interviewer
     };
-
     transition(SAVING);
     props
       .bookInterview(props.id, interview)
@@ -55,14 +55,6 @@ export default function Appointment(props) {
       .catch(error => transition(ERROR_DELETE, true));
   }
 
-  function confirm() {
-    transition(CONFIRM);
-  }
-
-  function edit() {
-    transition(EDIT);
-  }
-
   function studentName() {
     let nameOfStudent;
     if (props.interview !== null) {
@@ -70,6 +62,7 @@ export default function Appointment(props) {
     }
     return nameOfStudent;
   }
+
   function interviewerID() {
     let interviewerID;
     if (props.interview !== null) {
