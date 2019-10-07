@@ -1,4 +1,5 @@
 import React from "react";
+import axios from "axios";
 
 import {
   render,
@@ -10,7 +11,9 @@ import {
   getAllByTestId,
   getByAltText,
   getByPlaceholderText,
-  queryByText
+  queryByText,
+  queryByAltText,
+  queryByDisplayValue
 } from "@testing-library/react";
 
 import Application from "components/Application";
@@ -51,4 +54,71 @@ describe("Application", () => {
 
     expect(getByText(days, "no spots remaining")).toBeInTheDocument();
   });
+
+  it("loads data, cancels an interview and increases the spots remaining for Monday by 1", async () => {
+    const { container } = render(<Application />);
+
+    await waitForElement(() => getByText(container, "Archie Cohen"));
+
+    const appointment = getAllByTestId(container, "appointment").find(
+      appointment => queryByText(appointment, "Archie Cohen")
+    );
+    fireEvent.click(queryByAltText(appointment, "Delete"));
+
+    expect(
+      getByText(appointment, "Are you sure you want to delete?")
+    ).toBeInTheDocument();
+
+    fireEvent.click(queryByText(appointment, "Confirm"));
+
+    expect(getByText(appointment, "Deleting")).toBeInTheDocument();
+
+    await waitForElement(() => getByAltText(appointment, "Add"));
+
+    const day = getAllByTestId(container, "day").find(day =>
+      queryByText(day, "Monday")
+    );
+
+    expect(getByText(day, "2 spots remaining")).toBeInTheDocument();
+  });
+
+  it("loads data, edits an interview and keeps the spots remaining for Monday the same", async () => {
+    const { container } = render(<Application />);
+
+    await waitForElement(() => getByText(container, "Archie Cohen"));
+
+    const appointments = getAllByTestId(container, "appointment").find(
+      appointment => queryByText(appointment, "Archie Cohen")
+    );
+
+    fireEvent.click(queryByAltText(appointments, "Edit"));
+
+    expect(
+      queryByDisplayValue(appointments, "Archie Cohen")
+    ).toBeInTheDocument();
+
+    fireEvent.change(queryByDisplayValue(appointments, "Archie Cohen"), {
+      target: { value: "Lydia Miller-Jones" }
+    });
+
+    fireEvent.click(queryByText(appointments, "Save"));
+
+    expect(getByText(appointments, "Saving")).toBeInTheDocument();
+
+    await waitForElement(() => queryByText(appointments, "Lydia Miller-Jones"));
+
+    const day = getAllByTestId(container, "day").find(day =>
+      queryByText(day, "Monday")
+    );
+
+    expect(getByText(day, "1 spot remaining")).toBeInTheDocument();
+  });
+
+  it("shows the save error when failing to save an appointment", () => {
+    axios.put.mockRejectedValueOnce();
+  });
+
+  it("shows the save error when failing to save an appointment", () => {});
+
+  it("shows the delete error when failing to delete an existing appointment", () => {});
 });

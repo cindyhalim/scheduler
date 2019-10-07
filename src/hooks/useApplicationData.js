@@ -146,16 +146,16 @@ export default function useApplicationData() {
 
     console.log("in book interview");
 
-    // if (!state.appointments[id].interview) {
-    let dayID = getDayID(state.days, id);
+    if (!state.appointments[id].interview) {
+      let dayID = getDayID(state.days, id);
 
-    let days = updateObjectInArray(state.days, {
-      index: dayID - 1,
-      item: state.days[dayID - 1].spots - 1
-    });
+      let days = updateObjectInArray(state.days, {
+        index: dayID - 1,
+        item: state.days[dayID - 1].spots - 1
+      });
 
-    dispatch({ type: SET_REMAININGSPOTS, days });
-    // }
+      dispatch({ type: SET_REMAININGSPOTS, days });
+    }
 
     return axios
       .put(`/api/appointments/${id}`, { interview })
