@@ -114,11 +114,52 @@ describe("Application", () => {
     expect(getByText(day, "1 spot remaining")).toBeInTheDocument();
   });
 
-  it("shows the save error when failing to save an appointment", () => {
+  it("shows the save error when failing to save an appointment", async () => {
     axios.put.mockRejectedValueOnce();
+    const { container } = render(<Application />);
+    await waitForElement(() => getByText(container, "Archie Cohen"));
+
+    const appointments = getAllByTestId(container, "appointment").find(
+      appointment => queryByText(appointment, "Archie Cohen")
+    );
+
+    fireEvent.click(queryByAltText(appointments, "Edit"));
+
+    expect(
+      queryByDisplayValue(appointments, "Archie Cohen")
+    ).toBeInTheDocument();
+
+    fireEvent.change(queryByDisplayValue(appointments, "Archie Cohen"), {
+      target: { value: "Lydia Miller-Jones" }
+    });
+
+    fireEvent.click(queryByText(appointments, "Save"));
+
+    expect(getByText(appointments, "Saving")).toBeInTheDocument();
+
+    await waitForElement(() => queryByText(appointments, "Error"));
+
+    expect(queryByText(appointments, "Could not save appointment"));
   });
 
-  it("shows the save error when failing to save an appointment", () => {});
+  it("shows the delete error when failing to delete an existing appointment", async () => {
+    axios.delete.mockRejectedValueOnce();
+    const { container } = render(<Application />);
+    await waitForElement(() => getByText(container, "Archie Cohen"));
 
-  it("shows the delete error when failing to delete an existing appointment", () => {});
+    const appointment = getAllByTestId(container, "appointment").find(
+      appointment => queryByText(appointment, "Archie Cohen")
+    );
+    fireEvent.click(queryByAltText(appointment, "Delete"));
+
+    expect(
+      getByText(appointment, "Are you sure you want to delete?")
+    ).toBeInTheDocument();
+
+    fireEvent.click(queryByText(appointment, "Confirm"));
+
+    expect(getByText(appointment, "Deleting")).toBeInTheDocument();
+    await waitForElement(() => queryByText(appointment, "Error"));
+    expect(queryByText(appointment, "Could not cancel appointment"));
+  });
 });
