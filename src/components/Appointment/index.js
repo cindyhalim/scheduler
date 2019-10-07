@@ -9,7 +9,6 @@ import Status from "./Status";
 import Confirm from "./Confirm";
 import Error from "./Error";
 import useVisualMode from "../../hooks/useVisualMode";
-import decreaseSpots from "../../hooks/useApplicationData";
 
 const EMPTY = "EMPTY";
 const SHOW = "SHOW";
@@ -27,10 +26,12 @@ export default function Appointment(props) {
   );
 
   useEffect(() => {
-    if (mode === EMPTY && props.interview) {
+    if (props.interview && mode === EMPTY) {
+      props.bookInterview(props.id, props.interview);
       transition(SHOW);
     }
     if (props.interview === null && mode === SHOW) {
+      props.cancelInterview(props.id);
       transition(EMPTY);
     }
   }, [props.interview, transition, mode]);
@@ -72,7 +73,7 @@ export default function Appointment(props) {
   }
 
   return (
-    <article className="appointment">
+    <article className="appointment" data-testid="appointment">
       <Header time={props.time} />
       {mode === EMPTY && !props.interview && (
         <Empty onAdd={() => transition(CREATE)} />
@@ -88,7 +89,7 @@ export default function Appointment(props) {
       {mode === CREATE && (
         <Form
           interviewers={props.interviewers}
-          studentName={studentName()}
+          name={studentName()}
           interviewer={interviewerID()}
           onSave={save}
           onCancel={() => back()}
@@ -106,7 +107,7 @@ export default function Appointment(props) {
       {mode === EDIT && (
         <Form
           interviewers={props.interviewers}
-          studentName={studentName()}
+          name={studentName()}
           onSave={save}
           onCancel={back}
           interviewer={interviewerID()}

@@ -20,6 +20,18 @@ function reducer(state, action) {
         interviewers: action.interviewers
       };
     case SET_INTERVIEW:
+      // const appointment = {
+      //   ...state.appointments[action.eventData.id],
+      //   interview: action.eventData.interview
+      //     ? { ...action.eventData.interview }
+      //     : null
+      // };
+      // const appointments = {
+      //   ...state.appointments,
+      //   [action.eventData.id]: appointment
+      // };
+      // return { ...state, appointments: appointments };
+      console.log("setInterview", state);
       return {
         ...state,
         appointments: action.appointments
@@ -84,7 +96,6 @@ export default function useApplicationData() {
     interviewers: {}
   });
 
-  console.log(state);
   const setDay = day => dispatch({ type: SET_DAY, value: day });
   // const setDays = days => setState(prev => ({ ...prev, days }));
 
@@ -112,15 +123,14 @@ export default function useApplicationData() {
       wss.onmessage = function(event) {
         const eventData = JSON.parse(event.data);
         if (eventData.type === "SET_INTERVIEW") {
-          console.log(eventData);
           dispatch({ type: UPDATE_INTERVIEW, eventData });
         }
       };
     };
 
-    return () => {
-      wss.close();
-    };
+    // return () => {
+    //   wss.close();
+    // };
   }, []);
 
   function bookInterview(id, interview) {
@@ -134,16 +144,18 @@ export default function useApplicationData() {
       [id]: appointment
     };
 
-    if (!state.appointments[id].interview) {
-      let dayID = getDayID(state.days, id);
+    console.log("in book interview");
 
-      let days = updateObjectInArray(state.days, {
-        index: dayID - 1,
-        item: state.days[dayID - 1].spots - 1
-      });
+    // if (!state.appointments[id].interview) {
+    let dayID = getDayID(state.days, id);
 
-      dispatch({ type: SET_REMAININGSPOTS, days });
-    }
+    let days = updateObjectInArray(state.days, {
+      index: dayID - 1,
+      item: state.days[dayID - 1].spots - 1
+    });
+
+    dispatch({ type: SET_REMAININGSPOTS, days });
+    // }
 
     return axios
       .put(`/api/appointments/${id}`, { interview })
