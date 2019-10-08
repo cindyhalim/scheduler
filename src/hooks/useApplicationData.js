@@ -38,11 +38,9 @@ export default function useApplicationData() {
   useEffect(() => {
     const wss = new WebSocket(process.env.REACT_APP_WEBSOCKET_URL);
     wss.onopen = function(event) {
-      wss.send("ping");
       wss.onmessage = function(event) {
         const eventData = JSON.parse(event.data);
         if (eventData.type === "SET_INTERVIEW") {
-          console.log("websocket int", eventData);
           dispatch({ type: SET_INTERVIEW, eventData });
         }
       };

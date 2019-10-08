@@ -1,9 +1,7 @@
 const SET_DAY = "SET_DAY";
 const SET_APPLICATION_DATA = "SET_APPLICATION_DATA";
 const SET_INTERVIEW = "SET_INTERVIEW";
-// const SET_DAYS = "SET_DAYS";
 const UPDATE_INTERVIEW = "UPDATE_INTERVIEW";
-// const SET_REMAININGSPOTS = "SET_REMAININGSPOTS";
 
 function updateObjectInArray(array, action) {
   return array.map((item, index) => {
@@ -24,7 +22,17 @@ function getDayID(days, id) {
       dayID = day.id;
     }
   }
-  return dayID;
+  return dayID - 1;
+}
+
+function updateSpots(days, dayID, appointments) {
+  let spots = 0;
+  days[dayID].appointments.forEach(appointment => {
+    if (!appointments[appointment].interview) {
+      spots++;
+    }
+  });
+  return spots;
 }
 
 const reducer = (state, action) => {
@@ -39,8 +47,6 @@ const reducer = (state, action) => {
         interviewers: action.interviewers
       };
     case SET_INTERVIEW:
-      // id = action.eventData.id || action.id;
-      // console.log("my id", id);
       const appointment = {
         ...state.appointments[action.eventData.id],
         interview: action.eventData.interview
@@ -52,39 +58,13 @@ const reducer = (state, action) => {
         [action.eventData.id]: appointment
       };
 
-      const id = action.eventData.id;
-      let dayID;
-      let days;
-
-      if (appointments[id].interview) {
-        dayID = getDayID(state.days, action.eventData.id);
-        days = updateObjectInArray(state.days, {
-          index: dayID - 1,
-          item: state.days[dayID - 1].spots - 1
-        });
-      } else {
-        dayID = getDayID(state.days, action.eventData.id);
-        days = updateObjectInArray(state.days, {
-          index: dayID - 1,
-          item: state.days[dayID - 1].spots + 1
-        });
-      }
-
+      let dayID = getDayID(state.days, action.eventData.id);
+      let newSpots = updateSpots(state.days, dayID, appointments);
+      let days = updateObjectInArray(state.days, {
+        index: dayID,
+        item: newSpots
+      });
       return { ...state, appointments, days };
-    // days
-    // case UPDATE_INTERVIEW: {
-    //   const appointment = {
-    //     ...state.appointments[action.eventData.id],
-    //     interview: action.eventData.interview
-    //       ? { ...action.eventData.interview }
-    //       : null
-    //   };
-    //   const appointments = {
-    //     ...state.appointments,
-    //     [action.eventData.id]: appointment
-    //   };
-    //   return { ...state, appointments: appointments };
-    // }
     default:
       throw new Error(
         `Tried to reduce with unsupported action type: ${action.type}`
