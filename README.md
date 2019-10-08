@@ -1,6 +1,6 @@
 # Interview Scheduler
 
-Interview Scheduler is a full stack web application built with React, Node, Axios, and WebSockets to manage interview schedules for the week. In addition, this product has been set up with Jest, Storybook, and Cypress.
+Interview Scheduler is a full stack web application built with React, Node, Axios, and WebSockets to manage interview schedules for the week. In addition, tests has been set up with Jest, Storybook, and Cypress.
 
 ## Final Product
 
