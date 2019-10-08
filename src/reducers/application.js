@@ -1,7 +1,6 @@
 const SET_DAY = "SET_DAY";
 const SET_APPLICATION_DATA = "SET_APPLICATION_DATA";
 const SET_INTERVIEW = "SET_INTERVIEW";
-const UPDATE_INTERVIEW = "UPDATE_INTERVIEW";
 
 function updateObjectInArray(array, action) {
   return array.map((item, index) => {
@@ -72,10 +71,4 @@ const reducer = (state, action) => {
   }
 };
 
-export {
-  SET_DAY,
-  SET_APPLICATION_DATA,
-  SET_INTERVIEW,
-  UPDATE_INTERVIEW,
-  reducer
-};
+export { SET_DAY, SET_APPLICATION_DATA, SET_INTERVIEW, reducer };
