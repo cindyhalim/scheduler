@@ -41,3 +41,10 @@ npm test
 ```sh
 npm run storybook
 ```
+
+##References
+
+- [React](https://reactjs.org/docs/getting-started.html)
+- [Storybook](https://storybook.js.org/docs/basics/introduction/)
+- [Jest](https://jestjs.io/docs/en/getting-started)
+- [Axios](https://github.com/axios/axios#example)
