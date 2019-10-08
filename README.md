@@ -42,7 +42,7 @@ npm test
 npm run storybook
 ```
 
-##References
+## References
 
 - [React](https://reactjs.org/docs/getting-started.html)
 - [Storybook](https://storybook.js.org/docs/basics/introduction/)

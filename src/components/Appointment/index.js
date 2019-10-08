@@ -35,6 +35,7 @@ export default function Appointment(props) {
   }, [props.interview, transition, mode]);
 
   function save(name, interviewer) {
+    debugger;
     const interview = {
       student: name,
       interviewer
