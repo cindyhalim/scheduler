@@ -27,11 +27,9 @@ export default function Appointment(props) {
 
   useEffect(() => {
     if (props.interview && mode === EMPTY) {
-      props.bookInterview(props.id, props.interview);
       transition(SHOW);
     }
     if (props.interview === null && mode === SHOW) {
-      props.cancelInterview(props.id);
       transition(EMPTY);
     }
   }, [props.interview, transition, mode]);
