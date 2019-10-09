@@ -4,7 +4,7 @@ Interview Scheduler is a full stack web application built with React, Node, Axio
 
 ## Final Product
 
-The basic features of this app includes: creating, editing, and deleting a new interview appointment on different days.
+The basic features of this app include: creating a new interview appointment and editing and deleting existing interview appointments on different days.
 !["Basic Features"](https://github.com/cindyhalim/scheduler/blob/master/assets/basic_features.gif?raw=true)
 
 In addition, Websockets has been implemented to allow live updates between multiple users.
